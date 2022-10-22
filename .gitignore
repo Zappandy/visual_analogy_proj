@@ -1,2 +1,5 @@
 # ignore csvs
 *.csv
+
+# ignore zip
+*.zip

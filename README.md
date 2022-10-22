@@ -3,6 +3,12 @@
 - [drive](https://drive.google.com/drive/u/2/folders/1IiaV1hs5iGwIVDekpLcAmcAS4CHflM-G)
 - [overleaf](https://www.overleaf.com/5992664932kmbfntttbyvg)
 
+# Datasets
+
+- [visual relationship detection dataset](https://cs.stanford.edu/people/ranjaykrishna/vrd/) (csv version downloaded)
+
+- [flick 30k](https://shannon.cs.illinois.edu/DenotationGraph/) Repo's owner (Andres has access to this) [sample from kaggle] (https://www.kaggle.com/datasets/adityajn105/flickr30k)
+
 # Project title
 
 
