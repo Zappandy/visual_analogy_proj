@@ -3,3 +3,9 @@
 
 # ignore zip
 *.zip
+
+# ignore json
+*.json
+
+# ignore instructions
+instructions.txt
