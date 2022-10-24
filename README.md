@@ -1,6 +1,7 @@
 # Current tasks
 
 - Develop Gannt chart
+    - This is the google sheets we have
 - Mitigation plan
 
 # Links
