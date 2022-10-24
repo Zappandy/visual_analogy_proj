@@ -16,3 +16,4 @@ instructions.txt
 # ignore virtual env and data expl work
 /visual_snake
 /data_exploration
+/grid_tutorial
