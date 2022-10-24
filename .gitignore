@@ -13,5 +13,6 @@ instructions.txt
 # ignore python notebooks and checkpoints
 *.ipynb
 
-# ignore virtual env
+# ignore virtual env and data expl work
 /visual_snake
+/data_exploration
