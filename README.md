@@ -5,6 +5,7 @@
 - Mitigation plan
     - VQA to token to cluster. See final 3 slides of [first presentation](https://docs.google.com/presentation/d/1jNbLF8-G0VTE_UMxmtdqP44KDgTS8XgwoZzuNusQykE/edit#slide=id.g1724e927147_2_41)
 - Web server - echoes?
+- [Detectron 2](https://duckduckgo.com/?t=ffab&q=detectron+2+fast+RCNN&atb=v340-1&ia=web)
 
 # Links
 
