@@ -1,8 +1,9 @@
 # ignore csvs
 *.csv
 
-# ignore zip
+# ignore zip and gz
 *.zip
+*.gz
 
 # ignore json
 *.json
@@ -13,7 +14,8 @@ instructions.txt
 # ignore python notebooks and checkpoints
 *.ipynb
 
-# ignore virtual env and data expl work
+# ignore virtual env, data expl work, and template from Lorraine
 /visual_snake
 /data_exploration
 /grid_tutorial
+/TUL
