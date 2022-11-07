@@ -8,9 +8,6 @@
 # ignore json
 *.json
 
-# ignore instructions
-instructions.txt
-
 # ignore python notebooks and checkpoints
 *.ipynb
 
