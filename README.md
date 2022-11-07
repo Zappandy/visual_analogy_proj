@@ -12,6 +12,7 @@
 - [drive](https://drive.google.com/drive/u/2/folders/1IiaV1hs5iGwIVDekpLcAmcAS4CHflM-G)
 - [overleaf](https://www.overleaf.com/5992664932kmbfntttbyvg)
 - Exploration stage[Google Colab](https://colab.research.google.com/drive/1V7enlqjDF6dFs07hzjyW7Cld3l_MKpaV#scrollTo=Xb6ySx7GybDC)
+- [overleaf presentation](https://www.overleaf.com/read/cptsdwrrtqbn). Due note this file keeps changing
 
 # Datasets
 
