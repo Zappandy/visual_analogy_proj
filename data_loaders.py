@@ -43,9 +43,11 @@ visual_genome_pttrn = ".jpg"
 # https://medium.com/analytics-vidhya/how-to-load-any-image-dataset-in-python-3bd2fa2cb43d
 # https://stackoverflow.com/questions/65279115/how-to-use-collate-fn-with-dataloaders
 # https://medium.com/analytics-vidhya/how-to-load-any-image-dataset-in-python-3bd2fa2cb43d
-visual_dataset = ImageDataset(VISUAL_PATH, pattern=visual_genome_pttrn)
-#print(visual_dataset[:5])  # this slicing does not work, need to be loaded to data_loader 
-vg_dataloader = DataLoader(visual_dataset, batch_size=BATCH_SIZE, shuffle=False)
-#print(visual_dataset[:5])
+visual_genome = ImageDataset(VG_PATH, pattern=visual_genome_pttrn)
+flickr30k = ImageDataset(FLICKR_PATH, pattern=visual_genome_pttrn)
+#print(visual_genome[:5])  # this slicing does not work, need to be loaded to data_loader 
+vg_dataloader = DataLoader(visual_genome, batch_size=BATCH_SIZE, shuffle=False)
+flickr_dataloader = DataLoader(flickr30k, batch_size=BATCH_SIZE, shuffle=False)
+#print(visual_genome[:5])
 
 #4 cap 4 images --> analogies on imgs and captions
