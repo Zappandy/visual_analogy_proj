@@ -5,3 +5,4 @@ torchtext==0.13.1
 torchvision==0.13.1
 matplotlib==3.6.1
 matplotlib-inline==0.1.6
+opencv-python==4.6.0.66
