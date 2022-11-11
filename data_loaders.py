@@ -1,4 +1,5 @@
 import torch
+import cv2
 import os
 from torch.utils.data import Dataset
 
@@ -17,6 +18,8 @@ class ImageDataset(Dataset):
         """Return a data sample (=image) for a given index, along with the name of the corresponding pokemon."""
         
         image_path = self.image_path_list[index]
+        # dims are either x * 500 or 500 * x
+        # [3, 330, 500], [3, 650, 200]  #  view(-1)
         #name = image_path.replace(self.image_dir, '').replace('.png', '')
         #x = io.imread(image_path)
         #x = torch.tensor(x, dtype=float)
