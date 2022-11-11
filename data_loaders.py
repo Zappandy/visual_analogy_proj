@@ -35,6 +35,7 @@ class ImageDataset(Dataset):
 
 base_path = "/media/andres/2D2DA2454B8413B5/software_proj"
 visual_genome_pttrn = ".jpg"
+# images_1 https://cs.stanford.edu/people/rak248/VG_100K_2/images.zip
 visual_genome_path = "/visual_genome/VG_100K/"
 
 visual_path = base_path + visual_genome_path
