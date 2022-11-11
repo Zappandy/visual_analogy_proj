@@ -1,11 +1,13 @@
 import torch
+import os
+from torch.utils.data import Dataset
 
 class ImageDataset(Dataset):
 
-    def __init__(self, image_dir):
+    def __init__(self, image_dir, pattern=".jpg"):
         """Initialize the attributes of the object of the class."""
         self.image_dir = image_dir
-        self.image_path_list = sorted(self._find_files(image_dir))
+        self.image_path_list = sorted(self.find_files(image_dir, pattern))
 
     def __len__(self):
         """Return the size of the dataset."""
@@ -23,9 +25,9 @@ class ImageDataset(Dataset):
         return image_path
 
 
-    def find_files(self, directory, pattern=".jpg"):
+    def find_files(self, directory, pattern):
 
-        return  [f.path for f in os.scandir(test_dir) if f.path.endswith(pattern)]  # ends with does not like regex
+        return  [f.path for f in os.scandir(directory) if f.path.endswith(pattern)]  # ends with does not like regex
 
 
 base_path = "/media/andres/2D2DA2454B8413B5/software_proj"
@@ -34,5 +36,6 @@ visual_genome_path = "/visual_genome/VG_100K/"
 
 visual_path = base_path + visual_genome_path
 visual_dataset = ImageDataset(visual_path)
+print(visual_dataset[:5])
 
 #4 cap 4 images --> analogies on imgs and captions
