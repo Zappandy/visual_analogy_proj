@@ -1,9 +1,9 @@
 import torch
 import cv2
+import numpy as np
 import os
 from torch.utils.data import Dataset, DataLoader
-from transformers import VisionEncoderDecoderModel, ViTFeatureExtractor, AutoTokenizer
-from data_config import *
+from torch.nn.utils.rnn import pad_sequence
 
 class ImageDataset(Dataset):
 
@@ -20,34 +20,29 @@ class ImageDataset(Dataset):
         """Return a data sample (=image) for a given index, along with the name of the corresponding pokemon."""
         
         image_path = self.image_path_list[index]
-        img = cv2.imread(image_path)
-        # dims are either x * 500 or 500 * x
-        # [3, 330, 500], [3, 650, 200]  #  view(-1)
-        #name = image_path.replace(self.image_dir, '').replace('.png', '')
-        #x = io.imread(image_path)
-        #x = torch.tensor(x, dtype=float)
-        
-        #return x, name
-        x = torch.tensor(img, dtype=float)
-        return x
+        return self.image_path_list[index]
+        #img = cv2.imread(image_path)  # numpy array
+        #print(f"tito was here {img.shape}")
         #return img
+        
 
 
     def find_files(self, directory, pattern):
 
         return  [f.path for f in os.scandir(directory) if f.path.endswith(pattern)]  # ends with does not like regex
 
+def visual_collate_fn(batch):
+    # TODO: Implement your function
+    # https://python.plainenglish.io/understanding-collate-fn-in-pytorch-f9d1742647d3
+    # But I guess in your case it should be:
+    raw_images = [cv2.imread(image) for image in batch]
+    heights, widths = zip(*[im.shape[:2] for im in raw_images])
+    up_height = max(heights)
+    up_width = max(widths)
+    up_points = (up_width, up_height)
 
-visual_genome_pttrn = ".jpg"
-# images_1 https://cs.stanford.edu/people/rak248/VG_100K_2/images.zip
-# https://medium.com/analytics-vidhya/how-to-load-any-image-dataset-in-python-3bd2fa2cb43d
-# https://stackoverflow.com/questions/65279115/how-to-use-collate-fn-with-dataloaders
-# https://medium.com/analytics-vidhya/how-to-load-any-image-dataset-in-python-3bd2fa2cb43d
-visual_genome = ImageDataset(VG_PATH, pattern=visual_genome_pttrn)
-flickr30k = ImageDataset(FLICKR_PATH, pattern=visual_genome_pttrn)
-#print(visual_genome[:5])  # this slicing does not work, need to be loaded to data_loader 
-vg_dataloader = DataLoader(visual_genome, batch_size=BATCH_SIZE, shuffle=False)
-flickr_dataloader = DataLoader(flickr30k, batch_size=BATCH_SIZE, shuffle=False)
-#print(visual_genome[:5])
+    resized_images = [cv2.resize(image, up_points, interpolation= cv2.INTER_LINEAR) for image in raw_images]
 
-#4 cap 4 images --> analogies on imgs and captions
+    #print([i.shape for i in raw_images])
+    #print([i.shape for i in resized_images])
+    return [torch.tensor(im) for im in resized_images] #(3)  # torch.from_numpy
