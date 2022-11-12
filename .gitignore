@@ -10,6 +10,8 @@
 
 # ignore python notebooks and checkpoints
 *.ipynb
+.ipynb_checkpoints/
+
 
 # ignore virtual env, data expl work, and template from Lorraine
 /visual_snake

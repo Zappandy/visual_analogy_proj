@@ -28,6 +28,20 @@ class ImageDataset(Dataset):
 
         return  [f.path for f in os.scandir(directory) if f.path.endswith(pattern)]  # ends with does not like regex
 
+class Rescale:
+
+    def __init__(self, heights, widths, scaler_method=min):
+        height = scaler_method(heights)
+        width = scaler_method(widths)
+        self.points = (width, height)
+
+    def up_down_scaler(self, image):
+        """
+        scalar method dependent on init
+        """
+        return cv2.resize(image, self.points, interpolation=cv2.INTER_LINEAR)
+
+
 def visual_collate_fn(batch):
     # TODO: Implement your function
     # https://python.plainenglish.io/understanding-collate-fn-in-pytorch-f9d1742647d3
@@ -35,12 +49,23 @@ def visual_collate_fn(batch):
     # But I guess in your case it should be:
     raw_images = [cv2.imread(image) for image in batch]
     heights, widths = zip(*[im.shape[:2] for im in raw_images])
-    up_height = max(heights)
-    up_width = max(widths)
-    up_points = (up_width, up_height)
+    rescaler = Rescale(heights, widths, scaler_method=min)
 
-    resized_images = [cv2.resize(image, up_points, interpolation= cv2.INTER_LINEAR) for image in raw_images]
+    image = cv2.imread(batch[0])
+    cv2.imshow('rar', image)
+    cv2.waitKey(5000) 
+    cv2.destroyAllWindows()
+
+    #https://stackoverflow.com/questions/58100252/jupyter-kernel-crashes-when-trying-to-display-image-with-opencv
+
+    resized_images = [rescaler.up_down_scaler(image) for image in raw_images]
+    cv2.imshow("resized", resized_images[0])
+    cv2.waitKey(5000)
+    cv2.destroyAllWindows()
+
+    raise SystemExit
 
     #print([i.shape for i in raw_images])
     #print([i.shape for i in resized_images])
     return [torch.tensor(im) for im in resized_images] #(3)  # torch.from_numpy
+
