@@ -13,16 +13,16 @@ jpg_pttrn = ".jpg"
 # https://medium.com/analytics-vidhya/how-to-load-any-image-dataset-in-python-3bd2fa2cb43d
 visual_genome = ImageDataset(VG_PATH, pattern=jpg_pttrn)
 flickr30k = ImageDataset(FLICKR_PATH, pattern=jpg_pttrn)
-#print(visual_genome[:5])  # this slicing does not work, need to be loaded to data_loader 
 vg_dataloader = DataLoader(visual_genome, batch_size=BATCH_SIZE, shuffle=False,
                            collate_fn=visual_collate_fn)
-#print(visual_genome[0])
-iter_loader = iter(vg_dataloader)
-batch1 = next(iter_loader)
+#flickr_dataloader = DataLoader(flickr30k, batch_size=BATCH_SIZE, shuffle=False)  # should be diff?
+vg_iter = iter(vg_dataloader)
+batch1 = next(vg_iter)
 print(batch1)
-batch2 = next(iter_loader)
+
+vg_iter = iter(vg_dataloader)
+batch2 = next(vg_iter)
 print(batch2)
-flickr_dataloader = DataLoader(flickr30k, batch_size=BATCH_SIZE, shuffle=False)
 #print(visual_genome[:5])
 
 #4 cap 4 images --> analogies on imgs and captions

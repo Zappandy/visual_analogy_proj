@@ -21,9 +21,6 @@ class ImageDataset(Dataset):
         
         image_path = self.image_path_list[index]
         return self.image_path_list[index]
-        #img = cv2.imread(image_path)  # numpy array
-        #print(f"tito was here {img.shape}")
-        #return img
         
 
 
@@ -34,6 +31,7 @@ class ImageDataset(Dataset):
 def visual_collate_fn(batch):
     # TODO: Implement your function
     # https://python.plainenglish.io/understanding-collate-fn-in-pytorch-f9d1742647d3
+    # https://learnopencv.com/image-resizing-with-opencv/
     # But I guess in your case it should be:
     raw_images = [cv2.imread(image) for image in batch]
     heights, widths = zip(*[im.shape[:2] for im in raw_images])
