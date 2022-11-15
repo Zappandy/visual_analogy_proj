@@ -42,7 +42,7 @@ class Rescale:
         return cv2.resize(image, self.points, interpolation=cv2.INTER_LINEAR)
 
 
-def visual_collate_fn(batch, scaler_method):
+def visual_collate_fn(batch, scaler_method, naive_approach=False):
     # TODO: Implement your function
     # https://python.plainenglish.io/understanding-collate-fn-in-pytorch-f9d1742647d3
     # https://learnopencv.com/image-resizing-with-opencv/
@@ -67,7 +67,7 @@ def visual_collate_fn(batch, scaler_method):
 
     #print([i.shape for i in raw_images])
     #print([i.shape for i in resized_images])
-    return [torch.tensor(im) for im in resized_images] #(3)  # torch.from_numpy
+    return [torch.tensor(im) for im in resized_images]
 
 # THIS FUNCTION IS ONLY HERE TO PRINT IMAGES FOR PRESENTATION PURPOSES
 def image_storer(im_batch, resized):
