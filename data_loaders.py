@@ -42,30 +42,40 @@ class Rescale:
         return cv2.resize(image, self.points, interpolation=cv2.INTER_LINEAR)
 
 
-def visual_collate_fn(batch):
+def visual_collate_fn(batch, scaler_method):
     # TODO: Implement your function
     # https://python.plainenglish.io/understanding-collate-fn-in-pytorch-f9d1742647d3
     # https://learnopencv.com/image-resizing-with-opencv/
     # But I guess in your case it should be:
     raw_images = [cv2.imread(image) for image in batch]
     heights, widths = zip(*[im.shape[:2] for im in raw_images])
-    rescaler = Rescale(heights, widths, scaler_method=min)
+    rescaler = Rescale(heights, widths, scaler_method=scaler_method)
 
-    image = cv2.imread(batch[0])
-    cv2.imshow('rar', image)
-    cv2.waitKey(5000) 
-    cv2.destroyAllWindows()
+    #image_storer(raw_images, False)  # only uncomment if you want to store images.
+
+    #image = cv2.imread(batch[0])
+    #cv2.imshow('rar', image)
+    #cv2.waitKey(5000) 
+    #cv2.destroyAllWindows()
+    #cv2.imwrite('og_img.jpg', raw_images[0])
 
     #https://stackoverflow.com/questions/58100252/jupyter-kernel-crashes-when-trying-to-display-image-with-opencv
 
     resized_images = [rescaler.up_down_scaler(image) for image in raw_images]
-    cv2.imshow("resized", resized_images[0])
-    cv2.waitKey(5000)
-    cv2.destroyAllWindows()
 
-    raise SystemExit
+    #image_storer(resized_images, True)  # only uncomment if you want to store images.
 
     #print([i.shape for i in raw_images])
     #print([i.shape for i in resized_images])
     return [torch.tensor(im) for im in resized_images] #(3)  # torch.from_numpy
 
+# THIS FUNCTION IS ONLY HERE TO PRINT IMAGES FOR PRESENTATION PURPOSES
+def image_storer(im_batch, resized):
+    if resized:
+        im_name = "resized_demo_image_"
+    else:
+        im_name = "original_demo_image_"
+
+
+    for i, im in enumerate(im_batch):
+        cv2.imwrite(im_name + str(i) + ".png", im)
