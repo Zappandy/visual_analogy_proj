@@ -45,7 +45,7 @@ class RecipeTXTData(LightningDataModule):
         #train_df, test_df = train_test_split(df, test_size=test_size, random_state=SEED)
         #train_df, dev_df = train_test_split(train_df, test_size=dev_size, random_state=SEED)
         #return {"train": train_df, "test": test_df, "dev": dev_df}
-        #TODO: STORE TOK OR DATASET IN DISK THEN RELOAD/
+        #TODO: STORE TOK OR DATASET IN DISK THEN RELOAD?
         # https://pytorch-lightning.readthedocs.io/en/stable/data/datamodule.html
         if stage == "fit":
             self.train_data
