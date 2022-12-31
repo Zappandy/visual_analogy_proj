@@ -2,9 +2,10 @@
 #from transformers import AutoTokenizer
 import pandas as pd
 import ast
-from sklearn.model_selection import train_test_split
+#from sklearn.model_selection import train_test_split
+from torch.utils.data import random_split, DataLoader
 from pytorch_lightning import LightningDataModule
-from datasets import Dataset
+from datasets import Dataset, load_from_disk
 from transformers import T5TokenizerFast  # no Fast method?
 
 
@@ -16,19 +17,20 @@ max_input_length = 128
 class RecipeTXTData(LightningDataModule):
 
     #def __init__(self, data_dir: str=path):
-    def __init__(self, data_dir: str=test_path):
+    def __init__(self, data_csv: str=test_path, data_dir: str="testing_stuff"):
         super().__init__()
+        self.data_csv = data_csv
         self.data_dir = data_dir
-        self.dataset = None
+        self.batch_size = 16
         self.sentinel_tkn = "<extra_id_99>"
 
 
     def prepare_data(self):
 
         # https://github.com/huggingface/transformers/issues/16986
-        df = pd.read_csv(self.data_dir)
+        df = pd.read_csv(self.data_csv)
         # DO NOT DELETE THESE 3 LINES ARE FOR FULL DATASET
-        #df = pd.read_csv(self.data_dir, index_col=0)  # to clean weird idx
+        #df = pd.read_csv(self.data_csv, index_col=0)  # to clean weird idx
         #df.drop(["source", "link"], axis=1, inplace=True)  # only use with real_file
         #self.df.reset_index(drop=True, inplace=True)
         headers = ["ingredients", "NER", "directions"]  # title
@@ -36,21 +38,41 @@ class RecipeTXTData(LightningDataModule):
 
         # tokenize...
         raw_dataset = Dataset.from_pandas(df)
-        self.dataset = raw_dataset.map(self.preprocess_tokenize, batched=True)
+        raw_dataset = raw_dataset.map(self.preprocess_tokenize, batched=True)
+        # according to doc, it's better to store in local
+        #self.dataset.to_csv("testing_crap.csv", index=None)
+        raw_dataset.save_to_disk(self.data_dir)
 
 
 
     #TODO: to reload with GPU
-    def setup(self, stage: str):
+    #def setup(self, stage: str):
+    def setup(self, stage=None):
         #train_df, test_df = train_test_split(df, test_size=test_size, random_state=SEED)
         #train_df, dev_df = train_test_split(train_df, test_size=dev_size, random_state=SEED)
         #return {"train": train_df, "test": test_df, "dev": dev_df}
         #TODO: STORE TOK OR DATASET IN DISK THEN RELOAD?
         # https://pytorch-lightning.readthedocs.io/en/stable/data/datamodule.html
-        if stage == "fit":
-            self.train_data
-            self.val_data
-        pass
+        data = load_from_disk(self.data_dir)
+        train_set_size = int(data.num_rows * 0.80)
+        val_test_set_size = data.num_rows - train_set_size
+        val_set_size = int(val_test_set_size * 0.65)
+        test_set_size = val_test_set_size - val_set_size
+        self.train_data, self.val_data, self.test_data = random_split(data, [train_set_size, val_set_size, test_set_size])
+        print(f"total: {data.num_rows} | test {len(self.test_data)} | train {len(self.train_data)} | valid {len(self.val_data)}")
+    
+    #def train_dataloader(self) -> TRAIN_DATALOADERS:
+    #    return super().train_dataloader()
+    # https://www.geeksforgeeks.org/understanding-pytorch-lightning-datamodules/
+    
+    def train_dataloader(self) -> DataLoader:
+        return DataLoader(self.train_data, batch_size=self.batch_size)
+
+    def val_dataloader(self) -> DataLoader:
+        return DataLoader(self.val_data, batch_size=self.batch_size)
+
+    def test_dataloader(self) -> DataLoader:
+        return DataLoader(self.test_data, batch_size=self.batch_size)
 
     def preprocess_lists(self, df, headers):
 
