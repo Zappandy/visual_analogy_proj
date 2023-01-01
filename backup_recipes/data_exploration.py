@@ -6,7 +6,7 @@ import ast
 from torch.utils.data import random_split, DataLoader
 from pytorch_lightning import LightningDataModule
 from datasets import Dataset, load_from_disk
-from transformers import T5TokenizerFast
+from transformers import T5Tokenizer#Fast
 
 
 SEED = 42
@@ -46,12 +46,10 @@ class RecipeTXTData(LightningDataModule):
         raw_dataset.save_to_disk(self.data_dir)
 
 
-
     #def setup(self, stage: str):
     def setup(self, stage=None):
-        #TODO: STORE TOK OR DATASET IN DISK THEN RELOAD?
         # https://pytorch-lightning.readthedocs.io/en/stable/data/datamodule.html
-        data = load_from_disk(self.data_dir)
+        data = load_from_disk(self.data_dir)  # fs param will be removed by HF later on
         train_set_size = int(data.num_rows * 0.80)
         val_test_set_size = data.num_rows - train_set_size
         val_set_size = int(val_test_set_size * 0.65)
@@ -64,16 +62,16 @@ class RecipeTXTData(LightningDataModule):
     # https://www.geeksforgeeks.org/understanding-pytorch-lightning-datamodules/
     
     def train_dataloader(self) -> DataLoader:  # no num_workers. Before we parallelized?
-        return DataLoader(self.train_data)  #TODO: Pass workers as well and see if batches is best
-        #return DataLoader(self.train_data, batch_size=self.batch_size)
+        #return DataLoader(self.train_data)  #TODO: Pass workers as well and see if batches is best
+        return DataLoader(self.train_data, batch_size=self.batch_size, num_workers=6)  # TODO: try to set shuffle
 
     def val_dataloader(self) -> DataLoader:
-        return DataLoader(self.val_data)
-        #return DataLoader(self.val_data, batch_size=self.batch_size)
+        #return DataLoader(self.val_data)
+        return DataLoader(self.val_data, batch_size=self.batch_size, num_workers=6)
 
     def test_dataloader(self) -> DataLoader:
-        return DataLoader(self.test_data)
-        #return DataLoader(self.test_data, batch_size=self.batch_size)
+        #return DataLoader(self.test_data)
+        return DataLoader(self.test_data, batch_size=self.batch_size, num_workers=6)
 
     def preprocess_lists(self, df, headers):
 
@@ -86,7 +84,9 @@ class RecipeTXTData(LightningDataModule):
     def preprocess_tokenize(self, dataset):
 
         #Dataset.from_pandas(df)  # no...
-        tokenizer = T5TokenizerFast.from_pretrained("t5-small")
+        # https://stackoverflow.com/questions/63017931/using-huggingface-trainer-with-distributed-data-parallel
+        #tokenizer = T5TokenizerFast.from_pretrained("t5-small")
+        tokenizer = T5Tokenizer.from_pretrained("t5-small")
         
         ner = ["items: " + inp for inp in dataset["NER"]]
 
