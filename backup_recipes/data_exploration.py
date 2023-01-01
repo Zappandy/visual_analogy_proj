@@ -6,7 +6,7 @@ import ast
 from torch.utils.data import random_split, DataLoader
 from pytorch_lightning import LightningDataModule
 from datasets import Dataset, load_from_disk
-from transformers import T5TokenizerFast  # no Fast method?
+from transformers import T5TokenizerFast
 
 
 SEED = 42
@@ -41,16 +41,14 @@ class RecipeTXTData(LightningDataModule):
         raw_dataset = raw_dataset.map(self.preprocess_tokenize, batched=True)
         # according to doc, it's better to store in local
         #self.dataset.to_csv("testing_crap.csv", index=None)
+        print(raw_dataset)
+        raw_dataset.set_format(type="torch", columns=['input_ids', 'attention_mask', 'labels'])
         raw_dataset.save_to_disk(self.data_dir)
 
 
 
-    #TODO: to reload with GPU
     #def setup(self, stage: str):
     def setup(self, stage=None):
-        #train_df, test_df = train_test_split(df, test_size=test_size, random_state=SEED)
-        #train_df, dev_df = train_test_split(train_df, test_size=dev_size, random_state=SEED)
-        #return {"train": train_df, "test": test_df, "dev": dev_df}
         #TODO: STORE TOK OR DATASET IN DISK THEN RELOAD?
         # https://pytorch-lightning.readthedocs.io/en/stable/data/datamodule.html
         data = load_from_disk(self.data_dir)
@@ -65,21 +63,23 @@ class RecipeTXTData(LightningDataModule):
     #    return super().train_dataloader()
     # https://www.geeksforgeeks.org/understanding-pytorch-lightning-datamodules/
     
-    def train_dataloader(self) -> DataLoader:
-        return DataLoader(self.train_data, batch_size=self.batch_size)
+    def train_dataloader(self) -> DataLoader:  # no num_workers. Before we parallelized?
+        return DataLoader(self.train_data)  #TODO: Pass workers as well and see if batches is best
+        #return DataLoader(self.train_data, batch_size=self.batch_size)
 
     def val_dataloader(self) -> DataLoader:
-        return DataLoader(self.val_data, batch_size=self.batch_size)
+        return DataLoader(self.val_data)
+        #return DataLoader(self.val_data, batch_size=self.batch_size)
 
     def test_dataloader(self) -> DataLoader:
-        return DataLoader(self.test_data, batch_size=self.batch_size)
+        return DataLoader(self.test_data)
+        #return DataLoader(self.test_data, batch_size=self.batch_size)
 
     def preprocess_lists(self, df, headers):
 
         for h in headers:
             df[h] = df[h].apply(ast.literal_eval)
             df[h] = df[h].apply(self.sentinel_tkn.join)
-        #TODO: JOIN EACH ELEMENT TO CREATE A STRING AND FACILITATE TOKENIZATION
         return df
     
 
@@ -91,7 +91,12 @@ class RecipeTXTData(LightningDataModule):
         ner = ["items: " + inp for inp in dataset["NER"]]
 
         ingredients = ["ingredients: " + inp for inp in dataset["ingredients"]] 
-        directions = [inp for inp in dataset["directions"]]  # LABELS
+        #directions = [inp for inp in dataset["directions"]]  # LABELS
+        directions = []
+        for i, recipe in enumerate(dataset["title"]):
+            lab = recipe + ': ' + dataset["directions"][i]
+            directions.append(lab)
+
         model_inputs = tokenizer(ingredients, max_length=max_input_length,
                                  padding="max_length", truncation=True)
         labels = tokenizer(directions, max_length=max_input_length,
