@@ -12,7 +12,7 @@ from transformers import T5Tokenizer#Fast
 SEED = 42
 path = "data/dataset/full_dataset.csv"
 test_path = "./example_recipes.csv"
-max_input_length = 128
+max_input_length = 128  # 256
 
 class RecipeTXTData(LightningDataModule):
 
@@ -22,7 +22,8 @@ class RecipeTXTData(LightningDataModule):
         self.data_csv = data_csv
         self.data_dir = data_dir
         self.batch_size = 16
-        self.sentinel_tkn = "<extra_id_99>"
+        self.sentinel_tkn_spc = "<extra_id_99>"
+        self.sentinel_tkn_nl = "<extra_id_98>"
 
 
     def prepare_data(self):
@@ -77,7 +78,10 @@ class RecipeTXTData(LightningDataModule):
 
         for h in headers:
             df[h] = df[h].apply(ast.literal_eval)
-            df[h] = df[h].apply(self.sentinel_tkn.join)
+
+        df["NER"] = df["NER"].apply(', '.join)
+        df["ingredients"] = df["ingredients"].apply(self.sentinel_tkn_spc.join)
+        df["directions"] = df["directions"].apply(self.sentinel_tkn_spc.join)
         return df
     
 
@@ -89,17 +93,15 @@ class RecipeTXTData(LightningDataModule):
         tokenizer = T5Tokenizer.from_pretrained("t5-small")
         
         ner = ["items: " + inp for inp in dataset["NER"]]
-
+        titles = ["title: " + inp for inp in dataset["title"]] 
         ingredients = ["ingredients: " + inp for inp in dataset["ingredients"]] 
-        #directions = [inp for inp in dataset["directions"]]  # LABELS
-        directions = []
-        for i, recipe in enumerate(dataset["title"]):
-            lab = recipe + ': ' + dataset["directions"][i]
-            directions.append(lab)
-
-        model_inputs = tokenizer(ingredients, max_length=max_input_length,
+        directions = ["directions: " + inp for inp in dataset["directions"]]  # LABELS
+        outputs = list(zip(titles, ingredients, directions))
+        #outputs = [self.sentinel_tkn_nl.join(output) for output in outputs]  #TODO: Review sentinel tokens
+        outputs = ['\n'.join(output) for output in outputs]
+        model_inputs = tokenizer(ner, max_length=max_input_length,
                                  padding="max_length", truncation=True)
-        labels = tokenizer(directions, max_length=max_input_length,
+        labels = tokenizer(outputs, max_length=max_input_length,
                            padding="max_length", truncation=True).input_ids
         
 
@@ -114,24 +116,8 @@ class RecipeTXTData(LightningDataModule):
         
 
         #print(model_inputs[0])  # ids, type_ids, tokens, offsets, attention_mask, special_tokens_mask, overflowing])
-        #print(inputs[5])
-        #print(model_inputs[5].ids)
-        #test_str = tokenizer.decode(model_inputs[5].ids)
-        #print('-'*8)
-        #print(test_str)
-        #print('-'*8)
 
 
         #test_str = tokenizer.convert_ids_to_tokens(model_inputs[0].ids)
 
-#generation_kwargs = {"max_length": 256, "min_length": 32,
-#                     "no_repeat_ngram_size": 3, "do_sample": True,
-#                     "top_k": 60, "top_p": 0.95}  # 512, and min 64
-#
 #special_tokens = tokenizer.all_special_tokens
-#tokens_map = {"<sep>": "--", "<section>": "\n"}
-#
-## pass list of items, tokens. This generates text
-#def skip_special_tokens(text, special_tokens):
-#    j
-#

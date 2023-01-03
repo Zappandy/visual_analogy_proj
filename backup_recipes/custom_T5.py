@@ -6,6 +6,14 @@ from torch.optim import AdamW
 import torch
 import pytorch_lightning as pl
 
+generation_kwargs = {
+    "max_length": 512,
+    "min_length": 64,
+    "no_repeat_ngram_size": 3,
+    "do_sample": True,
+    "top_k": 60,
+    "top_p": 0.95
+}
 # https://pytorch-lightning.readthedocs.io/en/stable/notebooks/lightning_examples/text-transformers.html
 class ChefT5(pl.LightningModule):
 
@@ -28,6 +36,12 @@ class ChefT5(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         loss = self.common_step(batch, batch_idx)
+        #tokenizer = T5Tokenizer.from_pretrained("t5-small")
+        #directions = batch["labels"]
+        #print(directions.shape)
+        #raise SystemExit
+        #print(tokenizer.decode())
+        #raise SystemExit
         self.log("training_loss", loss)
         return loss
 
@@ -49,12 +63,25 @@ class ChefT5(pl.LightningModule):
         tokenizer = T5Tokenizer.from_pretrained("t5-small")
         loss = self.common_step(batch, batch_idx)
         inputs = batch["input_ids"]
-        outputs = self.model.generate(inputs)
-        print(outputs.shape)
+        attention = batch["attention_mask"]
+        outputs = self.model.generate(input_ids=inputs, attention_mask=attention, **generation_kwargs)  # RELOAD MODEL
+        #model = T5ForConditionalGeneration.from_pretrained(save_directory)
         generated = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        print('*'*8)
         print(generated)
+        print('*'*8)
+        masks = batch["labels"][0] != -100
+        clean_labels = torch.masked_select(batch["labels"][0], masks)
+        print(tokenizer.decode(clean_labels, skip_special_tokens=True))
+        print('*'*8)
+        masks = batch["input_ids"][0] != -100
+        clean_ingredients = torch.masked_select(batch["input_ids"][0], masks)
+        print(tokenizer.decode(clean_ingredients, skip_special_tokens=True))
         raise SystemExit
         return loss
+    
+    #def generate_recipe(self, batch):
+        #pass
 
     def configure_optimizers(self):
         optimizer = AdamW(self.parameters(), lr=self.hparams.lr)

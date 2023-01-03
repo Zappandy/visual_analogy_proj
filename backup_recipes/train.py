@@ -34,22 +34,16 @@ model = ChefT5(size_train=size_train)
 ## Optional
 #wandb.watch(model)
 
+MIN_EPOCHS = 1
+MAX_EPOCHS = 2
 use_gpu = False
 if cuda.is_available() and use_gpu:
-    trainer = Trainer(accelerator='gpu', devices=1, min_epochs=1, max_epochs=3, log_every_n_steps=2)  # default n_steps == 50
+    trainer = Trainer(accelerator='gpu', devices=1, min_epochs=MIN_EPOCHS, max_epochs=MAX_EPOCHS, log_every_n_steps=2)  # default n_steps == 50
 else:
-    trainer = Trainer(min_epochs=1, max_epochs=3, log_every_n_steps=2)
+    trainer = Trainer(min_epochs=MIN_EPOCHS, max_epochs=MAX_EPOCHS, log_every_n_steps=2)
 trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
 trainer.test(dataloaders=test_loader)
 #wandb.finish()
 
-#model = T5ForConditionalGeneration.from_pretrained(save_directory)
-## prepare for the model
-#input_ids = tokenizer(test_example['code'], return_tensors='pt').input_ids
-## generate
-#outputs = model.generate(input_ids)
-#print("Generated docstring:", tokenizer.decode(outputs[0], skip_special_tokens=True))
-#
-#print("Ground truth:", test_example['docstring'])
 
 #TODO: WHEN WE ARE DONE UNCOMMENT LINES IN prepare_data in lightning data module
