@@ -67,13 +67,14 @@ class ChefT5(pl.LightningModule):
         outputs = self.model.generate(input_ids=inputs, attention_mask=attention, **generation_kwargs)  # RELOAD MODEL
         #model = T5ForConditionalGeneration.from_pretrained(save_directory)
         generated = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        print('*'*8)
+        print()
+        print('*'*8 + 'GENERATED')
         print(generated)
-        print('*'*8)
+        print('*'*8 + 'LABELS')
         masks = batch["labels"][0] != -100
         clean_labels = torch.masked_select(batch["labels"][0], masks)
         print(tokenizer.decode(clean_labels, skip_special_tokens=True))
-        print('*'*8)
+        print('*'*8 + 'INPUT')
         masks = batch["input_ids"][0] != -100
         clean_ingredients = torch.masked_select(batch["input_ids"][0], masks)
         print(tokenizer.decode(clean_ingredients, skip_special_tokens=True))

@@ -42,7 +42,7 @@ if cuda.is_available() and use_gpu:
 else:
     trainer = Trainer(min_epochs=MIN_EPOCHS, max_epochs=MAX_EPOCHS, log_every_n_steps=2)
 trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
-trainer.test(dataloaders=test_loader)
+trainer.test(dataloaders=train_loader, ckpt_path='best')  # withoutcheckpoint previous fit is used? Better store/define model to load with test
 #wandb.finish()
 
 
