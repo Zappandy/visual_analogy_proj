@@ -87,7 +87,9 @@ class RecipeGenerator:
 def display_recipes(items):
     recipe_generator = RecipeGenerator()
     generated = recipe_generator.generation_function(items)
+    recipes = []
     for text in generated:
+        message = ''
         sections = text.split("\n")
         for section in sections:
             section = section.strip()
@@ -102,10 +104,19 @@ def display_recipes(items):
                 headline = "DIRECTIONS"
     
             if headline == "TITLE":
-                print(f"[{headline}]: {section.strip().capitalize()}")
+                head = f"[{headline}]: {section.strip().capitalize()}"
+                #print(f"[{headline}]: {section.strip().capitalize()}")
+                print(head)
+                message += head + '\n'
             else:
                 section_info = [f"  - {i+1}: {info.strip().capitalize()}" for i, info in enumerate(section.split("--"))]
+                headline = f"[{headline}]"
+                section = "\n".join(section_info)
+                message += headline + '\n' + section + '\n'
                 print(f"[{headline}]:")
                 print("\n".join(section_info))
     
         print("-" * 130)
+        message += ('\n' + '-' * 130)
+        recipes.append(message)
+    return recipes    

@@ -1,19 +1,20 @@
 import io
 import streamlit as st
 import torch
-import requests
-import timm
 from PIL import Image
 from utils import display_recipes
 from transformers import DetrFeatureExtractor, DetrForObjectDetection
 
 def load_image():
-    uploaded_file = st.file_uploader(label='Pick an image to test')
-    if uploaded_file is not None:
-        image_data = uploaded_file.getvalue()
-        st.image(image_data)
-        pil_img = Image.open(io.BytesIO(image_data))
-        return pil_img
+    uploaded_files = st.file_uploader(label='Pick an image to test', accept_multiple_files=True)
+    if uploaded_files is not None:
+        pil_imgs = []
+        for file in uploaded_files:
+            image_data = file.getvalue()
+            st.image(image_data)
+            pil_img = Image.open(io.BytesIO(image_data))
+            pil_imgs.append(pil_img)
+        return pil_imgs
 
 
 def viz_load_model():
@@ -21,19 +22,19 @@ def viz_load_model():
     model = DetrForObjectDetection.from_pretrained("facebook/detr-resnet-101")
     return model, feature_extractor
 
-def text_model():
+def text_model(items):
     
-    items = [
+    test_items = [
         "macaroni, butter, salt, bacon, milk, flour, pepper, cream corn",
         "provolone cheese, bacon, bread, ginger"
     ]
     
-    items = ["bananas", "pineapple", "avocado"]
+    test_items = ["bananas", "pineapple", "avocado"]
 
-    items = [
+    test_items = [
         "salmon, butter, salt, spinach, milk, flour, pepper, cream corn",
         "provolone cheese, bread, ginger"]
-    display_recipes(items)
+    return display_recipes(items)
 
 def objects(model, feature_extractor, outputs, target_sizes):
     results = feature_extractor.post_process(outputs, target_sizes=target_sizes)[0]
@@ -49,18 +50,26 @@ def objects(model, feature_extractor, outputs, target_sizes):
                 f"{round(score.item(), 3)} at location {box}"
             )
             ingredients.add(ingr)
-    return ingredients
+    return list(ingredients)
 
 def main():
     st.title('Image upload demo')
-    image = load_image()
+    images = load_image()
+    print(images)
+
+    images = images[0] if len(images) == 1 else images
+
+    print(images)
     model, feature_extract = viz_load_model()
 
-    inputs = feature_extract(images=image, return_tensors="pt")
+    inputs = feature_extract(images=images, return_tensors="pt")
     outputs = model(**inputs)
-    ner_ingredients = objects(model=model, feature_extractor=feature_extract, outputs=outputs, target_sizes=torch.tensor([image.size[::-1]]))
-    print(ner_ingredients)
-    text_model()
+    ner_ingredients = objects(model=model, feature_extractor=feature_extract, outputs=outputs, target_sizes=torch.tensor([images.size[::-1]]))
+    ##print(ner_ingredients)
+    recipes = text_model(ner_ingredients)
+    st.text(ner_ingredients)
+    for rep in recipes:
+        st.text(rep)
 
 
 if __name__ == '__main__':
