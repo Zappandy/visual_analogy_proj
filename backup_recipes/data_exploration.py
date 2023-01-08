@@ -16,8 +16,8 @@ max_input_length = 128  # 256
 
 class RecipeTXTData(LightningDataModule):
 
-    #def __init__(self, data_dir: str=path):
     def __init__(self, data_csv: str=test_path, data_dir: str="testing_stuff"):
+    #def __init__(self, data_csv: str=path, data_dir: str="complete_recipe_set"):
         super().__init__()
         self.data_csv = data_csv
         self.data_dir = data_dir
@@ -33,13 +33,17 @@ class RecipeTXTData(LightningDataModule):
         # DO NOT DELETE THESE 3 LINES ARE FOR FULL DATASET
         #df = pd.read_csv(self.data_csv, index_col=0)  # to clean weird idx
         #df.drop(["source", "link"], axis=1, inplace=True)  # only use with real_file
-        #self.df.reset_index(drop=True, inplace=True)
+        #df.reset_index(drop=True, inplace=True)
+
         headers = ["ingredients", "NER", "directions"]  # title
         df = self.preprocess_lists(df, headers)
 
         # tokenize...
-        raw_dataset = Dataset.from_pandas(df)
+        #raw_dataset = Dataset.from_pandas(df.iloc[:1200000])  # 700000 is fine...
+        #raw_dataset = Dataset.from_pandas(df.iloc[:70000])  # 700000 is fine...
+        raw_dataset = Dataset.from_pandas(df)  # 700000 is fine...
         raw_dataset = raw_dataset.map(self.preprocess_tokenize, batched=True)
+
         # according to doc, it's better to store in local
         #self.dataset.to_csv("testing_crap.csv", index=None)
         print(raw_dataset)

@@ -50,39 +50,12 @@ class ChefT5(pl.LightningModule):
         self.log("validation_loss", loss, on_epoch=True)
         #TODO: https://github.com/kelvin-jose/T5-Transformer-Lightning/blob/master/model.py
         # NO TEXT GENERATION
-        #print(batch["labels"])
-        ## now preds
-        #outputs = self(**batch)
-        #logits = outputs.logits
-        #preds = torch.argmax(logits, axis=1)
-        #print(preds)
-        #raise SystemExit
         return loss
 
     def test_step(self, batch, batch_idx):
-        tokenizer = T5Tokenizer.from_pretrained("t5-small")
         loss = self.common_step(batch, batch_idx)
-        inputs = batch["input_ids"]
-        attention = batch["attention_mask"]
-        outputs = self.model.generate(input_ids=inputs, attention_mask=attention, **generation_kwargs)  # RELOAD MODEL
-        #model = T5ForConditionalGeneration.from_pretrained(save_directory)
-        generated = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        print()
-        print('*'*8 + 'GENERATED')
-        print(generated)
-        print('*'*8 + 'LABELS')
-        masks = batch["labels"][0] != -100
-        clean_labels = torch.masked_select(batch["labels"][0], masks)
-        print(tokenizer.decode(clean_labels, skip_special_tokens=True))
-        print('*'*8 + 'INPUT')
-        masks = batch["input_ids"][0] != -100
-        clean_ingredients = torch.masked_select(batch["input_ids"][0], masks)
-        print(tokenizer.decode(clean_ingredients, skip_special_tokens=True))
-        raise SystemExit
+
         return loss
-    
-    #def generate_recipe(self, batch):
-        #pass
 
     def configure_optimizers(self):
         optimizer = AdamW(self.parameters(), lr=self.hparams.lr)
