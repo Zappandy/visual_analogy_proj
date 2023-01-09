@@ -1,8 +1,5 @@
-#from transformers import FlaxAutoModelForSeq2SeqLM
-#from transformers import AutoTokenizer
 import pandas as pd
 import ast
-#from sklearn.model_selection import train_test_split
 from torch.utils.data import random_split, DataLoader
 from pytorch_lightning import LightningDataModule
 from datasets import Dataset, load_from_disk
@@ -16,8 +13,8 @@ max_input_length = 128  # 256
 
 class RecipeTXTData(LightningDataModule):
 
-    def __init__(self, data_csv: str=test_path, data_dir: str="testing_stuff"):
-    #def __init__(self, data_csv: str=path, data_dir: str="complete_recipe_set"):
+    #def __init__(self, data_csv: str=test_path, data_dir: str="testing_stuff"):
+    def __init__(self, data_csv: str=path, data_dir: str="complete_recipe_set"):
         super().__init__()
         self.data_csv = data_csv
         self.data_dir = data_dir
@@ -31,24 +28,22 @@ class RecipeTXTData(LightningDataModule):
         # https://github.com/huggingface/transformers/issues/16986
         df = pd.read_csv(self.data_csv)
         # DO NOT DELETE THESE 3 LINES ARE FOR FULL DATASET
-        #df = pd.read_csv(self.data_csv, index_col=0)  # to clean weird idx
-        #df.drop(["source", "link"], axis=1, inplace=True)  # only use with real_file
-        #df.reset_index(drop=True, inplace=True)
+        df = pd.read_csv(self.data_csv, index_col=0)  # to clean weird idx
+        df.drop(["source", "link"], axis=1, inplace=True)  # only use with real_file
+        df.reset_index(drop=True, inplace=True)
 
         headers = ["ingredients", "NER", "directions"]  # title
         df = self.preprocess_lists(df, headers)
 
         # tokenize...
-        #raw_dataset = Dataset.from_pandas(df.iloc[:1200000])  # 700000 is fine...
-        #raw_dataset = Dataset.from_pandas(df.iloc[:70000])  # 700000 is fine...
-        raw_dataset = Dataset.from_pandas(df)  # 700000 is fine...
+        raw_dataset = Dataset.from_pandas(df.iloc[:200000])  # 500000 is fine
         raw_dataset = raw_dataset.map(self.preprocess_tokenize, batched=True)
 
         # according to doc, it's better to store in local
-        #self.dataset.to_csv("testing_crap.csv", index=None)
         print(raw_dataset)
         raw_dataset.set_format(type="torch", columns=['input_ids', 'attention_mask', 'labels'])
         raw_dataset.save_to_disk(self.data_dir)
+        #raw_dataset.to_csv("Custom_Recipes_NGL.csv")
 
 
     #def setup(self, stage: str):
@@ -117,11 +112,3 @@ class RecipeTXTData(LightningDataModule):
         model_inputs["labels"] = labels_with_ignore_index
         
         return model_inputs
-        
-
-        #print(model_inputs[0])  # ids, type_ids, tokens, offsets, attention_mask, special_tokens_mask, overflowing])
-
-
-        #test_str = tokenizer.convert_ids_to_tokens(model_inputs[0].ids)
-
-#special_tokens = tokenizer.all_special_tokens

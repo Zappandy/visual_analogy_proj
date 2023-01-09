@@ -38,9 +38,6 @@ train_loader = data_reader.train_dataloader()
 size_train = len(train_loader)
 
 
-raise SystemExit
-
-
 #generate_recipes(data_reader.test_data)
 model = ChefT5(size_train=size_train)
 
