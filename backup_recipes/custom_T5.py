@@ -36,12 +36,6 @@ class ChefT5(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         loss = self.common_step(batch, batch_idx)
-        #tokenizer = T5Tokenizer.from_pretrained("t5-small")
-        #directions = batch["labels"]
-        #print(directions.shape)
-        #raise SystemExit
-        #print(tokenizer.decode())
-        #raise SystemExit
         self.log("training_loss", loss)
         return loss
 
