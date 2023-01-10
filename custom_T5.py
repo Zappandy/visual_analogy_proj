@@ -1,19 +1,10 @@
 #from transformers import FlaxAutoModelForSeq2SeqLM
 #from transformers import AutoTokenizer
 # https://pytorch-lightning.readthedocs.io/en/stable/common/lightning_module.html
-from transformers import T5ForConditionalGeneration, T5Tokenizer, get_linear_schedule_with_warmup
+from transformers import T5ForConditionalGeneration, get_linear_schedule_with_warmup
 from torch.optim import AdamW
-import torch
 import pytorch_lightning as pl
 
-generation_kwargs = {
-    "max_length": 512,
-    "min_length": 64,
-    "no_repeat_ngram_size": 3,
-    "do_sample": True,
-    "top_k": 60,
-    "top_p": 0.95
-}
 # https://pytorch-lightning.readthedocs.io/en/stable/notebooks/lightning_examples/text-transformers.html
 class ChefT5(pl.LightningModule):
 

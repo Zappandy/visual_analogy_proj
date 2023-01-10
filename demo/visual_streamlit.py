@@ -50,22 +50,23 @@ def objects(model, feature_extractor, outputs, target_sizes):
                 f"{round(score.item(), 3)} at location {box}"
             )
             ingredients.add(ingr)
-    return list(ingredients)
+    return ingredients
 
 def main():
     st.title('Image upload demo')
     images = load_image()
-    print(images)
 
-    images = images[0] if len(images) == 1 else images
 
-    print(images)
     model, feature_extract = viz_load_model()
 
-    inputs = feature_extract(images=images, return_tensors="pt")
-    outputs = model(**inputs)
-    ner_ingredients = objects(model=model, feature_extractor=feature_extract, outputs=outputs, target_sizes=torch.tensor([images.size[::-1]]))
-    ##print(ner_ingredients)
+    ner_ingredients = set()
+    for im in images:
+        inputs = feature_extract(images=im, return_tensors="pt")
+        outputs = model(**inputs)
+        # set union operation
+        ner_ingredients |= objects(model=model, feature_extractor=feature_extract, outputs=outputs, target_sizes=torch.tensor([im[::-1]]))
+
+    ner_ingredients = list(ner_ingredients)
     recipes = text_model(ner_ingredients)
     st.text(ner_ingredients)
     for rep in recipes:
